@@ -476,11 +476,58 @@ directive @withB(argB: B) on FIELD_DEFINITION
 
 test('importSchema: key directive', t => {
   const expectedSDL = `\
-type User @key(fields: "id") {
-  id: ID!
+scalar UPC
+
+type Product @key(fields: "upc") {
+  upc: UPC!
+  name: String
 }
 `
   t.is(importSchema('fixtures/directive/c.graphql'), expectedSDL)
+})
+
+test('importSchema: multiple key directive', t => {
+  const expectedSDL = `\
+scalar UPC
+
+scalar SKU
+
+type Product @key(fields: "upc") @key(fields: "sku") {
+  upc: UPC!
+  sku: SKU!
+  name: String
+}
+`
+  t.is(importSchema('fixtures/directive/e.graphql'), expectedSDL)
+})
+
+test('importSchema: external directive', t => {
+  const expectedSDL = `\
+type Review @key(fields: "id") {
+  product: Product @provides(fields: "name")
+}
+
+extend type Product @key(fields: "upc") {
+  upc: String @external
+  name: String @external
+}
+`
+  t.is(importSchema('fixtures/directive/f.graphql'), expectedSDL)
+})
+
+test('importSchema: requires directive', t => {
+  const expectedSDL = `\
+type Review {
+  id: ID
+}
+
+extend type User @key(fields: "id") {
+  id: ID! @external
+  email: String @external
+  reviews: [Review] @requires(fields: "email")
+}
+`
+  t.is(importSchema('fixtures/directive/g.graphql'), expectedSDL)
 })
 
 test('importSchema: interfaces', t => {

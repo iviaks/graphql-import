@@ -1,3 +1,6 @@
-type User @key(fields: "id") {
-	id: ID!
+scalar UPC
+
+type Product @key(fields: "upc") {
+  upc: UPC!
+  name: String
 }
